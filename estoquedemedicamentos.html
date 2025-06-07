@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controle de Estoque - Wisdom ARK</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f1f4f9;
+      margin: 0;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #1a2634;
+      color: #e0e6f0;
+      height: 100vh;
+      padding: 2rem 1.5rem;
+      box-shadow: 3px 0 15px rgb(0 0 0 / 0.1);
+    }
+
+    .sidebar h4 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #56b4d3;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #a1b3c7;
+      margin-bottom: 1.3rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      color: #fff;
+      background: #56b4d3;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 2rem 3rem;
+      overflow-y: auto;
+    }
+
+    .main-content h2 {
+      color: #2c3e50;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    thead th {
+      background: #56b4d3;
+      color: white;
+      padding: 12px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    tbody td {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 0;
+      font-weight: 500;
+      color: #34495e;
+    }
+
+    tbody tr {
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+
+    .form-inline input,
+    .form-inline button {
+      margin-right: 10px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 240px;
+      right: 0;
+      height: 50px;
+      background: #1a2634;
+      color: #56b4d3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h4><i class="fas fa-capsules"></i> Wisdom ARK</h4>
+    <a href="index.html"><i class="fas fa-home"></i> Início</a>
+    <a href="#" class="active"><i class="fas fa-pills"></i> Controle de Estoque</a>
+  </aside>
+
+  <main class="main-content">
+    <h2><i class="fas fa-boxes"></i> Controle de Estoque de Medicamentos</h2>
+
+    <form id="formEstoque" class="form-inline d-flex mb-4 flex-wrap gap-2">
+      <input type="text" class="form-control" id="medicamento" placeholder="Nome do Medicamento" required />
+      <input type="number" class="form-control" id="quantidade" placeholder="Quantidade" required min="1" />
+      <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Medicamento</th>
+          <th>Quantidade</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="estoqueBody"></tbody>
+    </table>
+  </main>
+
+  <footer>&copy; 2025 Wisdom ARK - Todos os direitos reservados</footer>
+
+  <script>
+    const form = document.getElementById("formEstoque");
+    const tbody = document.getElementById("estoqueBody");
+
+    function carregarEstoque() {
+      tbody.innerHTML = "";
+      const estoque = JSON.parse(localStorage.getItem("estoque") || "[]");
+
+      estoque.forEach((item, index) => {
+        const linha = document.createElement("tr");
+        linha.innerHTML = `
+          <td>${item.nome}</td>
+          <td>${item.quantidade}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="removerItem(${index})">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(linha);
+      });
+    }
+
+    function removerItem(index) {
+      const estoque = JSON.parse(localStorage.getItem("estoque") || "[]");
+      estoque.splice(index, 1);
+      localStorage.setItem("estoque", JSON.stringify(estoque));
+      carregarEstoque();
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById("medicamento").value.trim();
+      const quantidade = parseInt(document.getElementById("quantidade").value);
+
+      if (!nome || quantidade <= 0) return;
+
+      const estoque = JSON.parse(localStorage.getItem("estoque") || "[]");
+      estoque.push({ nome, quantidade });
+      localStorage.setItem("estoque", JSON.stringify(estoque));
+
+      form.reset();
+      carregarEstoque();
+    });
+
+    window.addEventListener("DOMContentLoaded", carregarEstoque);
+  </script>
+</body>
+</html>
