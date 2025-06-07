@@ -1,15 +1,17 @@
-// router.js
+// rotas.js
 
-// Função para redirecionar o usuário com base no login
-function roteador() {
-  // Pegue o usuário salvo no localStorage
+(function roteador() {
+  const paginaAtual = window.location.pathname.split("/").pop(); // ex: 'index.html', 'login.html'
   const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
 
-  if (!usuario) {
-    // Se não estiver logado, vai para a tela de login
+  // Se o usuário NÃO estiver logado e não estiver na tela de login, redireciona para login
+  if (!usuario && paginaAtual !== 'login.html') {
     window.location.href = 'login.html';
-  } else {
-    // Se estiver logado, vai para a página conforme o tipo
+    return;
+  }
+
+  // Se o usuário estiver logado e estiver na login.html, redireciona conforme tipo
+  if (usuario && paginaAtual === 'login.html') {
     switch (usuario.tipo) {
       case 'paciente':
         window.location.href = 'agendadeconsultas.html';
@@ -21,11 +23,10 @@ function roteador() {
         window.location.href = 'estoquedemedicamentos.html';
         break;
       default:
-        // Caso tipo inválido, redireciona para login para segurança
+        localStorage.removeItem("usuarioLogado");
         window.location.href = 'login.html';
     }
   }
-}
 
-// Executa o roteador quando a página carregar
-window.onload = roteador;
+  // Se já estiver logado e em página válida, deixa continuar normalmente
+})();
