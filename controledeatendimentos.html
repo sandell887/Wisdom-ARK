@@ -13,7 +13,6 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
   <style>
-    /* Fonte principal */
     body {
       font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f8f9fa;
@@ -23,7 +22,6 @@
       flex-direction: row;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 240px;
       background: #1a2634;
@@ -65,7 +63,6 @@
       font-weight: 600;
     }
 
-    /* Main content */
     .main-content {
       margin-left: 240px;
       padding: 3rem 3rem 2rem;
@@ -84,7 +81,6 @@
       gap: 10px;
     }
 
-    /* Tabela estilizada */
     table {
       border-collapse: separate;
       border-spacing: 0 8px;
@@ -121,7 +117,6 @@
       font-weight: 500;
     }
 
-    /* Botões ações */
     .btn-success {
       background-color: #2ecc71;
       border: none;
@@ -142,7 +137,6 @@
       background-color: #c0392b;
     }
 
-    /* Footer */
     footer {
       position: fixed;
       bottom: 0;
@@ -187,9 +181,7 @@
 
   <footer>&copy; 2025 Wisdom ARK - Todos os direitos reservados</footer>
 
-
-    <script src="rotas.js">
-
+  <script>
     function carregarTabela() {
       const tbody = document.getElementById('tabela-atendimentos');
       tbody.innerHTML = '';
@@ -200,12 +192,20 @@
         const dataFormatada = dataObj.toLocaleDateString('pt-BR');
         const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
+        let corClasse = '';
+        const situacao = evento.severity || evento.situacao || '-';
+
+        if (situacao === 'Leve') corClasse = 'text-success fw-bold';
+        else if (situacao === 'Moderado') corClasse = 'text-warning fw-bold';
+        else if (situacao === 'Grave') corClasse = 'text-danger fw-bold';
+        else if (situacao === 'Atendido com Sucesso') corClasse = 'text-primary fw-bold';
+
         const linha = document.createElement('tr');
         linha.innerHTML = `
           <td>${evento.patient || evento.title}</td>
           <td>${dataFormatada}</td>
           <td>${horaFormatada}</td>
-          <td>${evento.severity || evento.situacao || '-'}</td>
+          <td class="${corClasse}">${situacao}</td>
           <td>
             <button class="btn btn-sm btn-success me-2" title="Atendido com Sucesso" onclick="marcarComoAtendido(${index})">
               <i class="fas fa-check"></i>
