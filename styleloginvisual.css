@@ -90,3 +90,46 @@ body {
 .btn-login:hover {
   background-color: #3498db; /* azul hover mais forte */
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+    align-items: flex-start;
+    background: linear-gradient(to bottom, #e3f2fd, #fdecea);
+  }
+
+  .login-container {
+    margin-top: 3rem;
+    padding: 2rem;
+    max-width: 100%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  .login-icon {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1.5rem;
+  }
+
+  .login-container h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-control {
+    font-size: 0.95rem;
+  }
+
+  .btn-login {
+    padding: 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  .health-icon {
+    font-size: 3rem;
+  }
+}
