@@ -1,0 +1,139 @@
+body {
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fa;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+.sidebar {
+  width: 240px;
+  background: #1a2634;
+  color: #e0e6f0;
+  height: 100vh;
+  position: fixed;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 3px 0 15px rgb(0 0 0 / 0.1);
+}
+
+.sidebar h4 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #56b4d3;
+  letter-spacing: 1.2px;
+}
+
+.sidebar a {
+  color: #a1b3c7;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: #56b4d3;
+  color: #fff;
+  font-weight: 600;
+}
+
+.main-content {
+  margin-left: 240px;
+  padding: 3rem 3rem 2rem;
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: -2px 0 15px rgb(0 0 0 / 0.05);
+}
+
+.main-content h2 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  width: 100%;
+}
+
+thead tr th {
+  background: #56b4d3;
+  color: white;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 8px 8px 0 0;
+  text-align: left;
+  border-bottom: none;
+  box-shadow: 0 2px 6px rgb(86 180 211 / 0.3);
+}
+
+tbody tr {
+  background: #f5f9fc;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.05);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+tbody tr:hover {
+  background: #e0f0fb;
+}
+
+tbody tr td {
+  padding: 14px 20px;
+  vertical-align: middle;
+  border: none;
+  color: #34495e;
+  font-weight: 500;
+}
+
+.btn-success {
+  background-color: #2ecc71;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: #27ae60;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 240px;
+  right: 0;
+  height: 50px;
+  background: #1a2634;
+  color: #56b4d3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  box-shadow: 0 -3px 10px rgb(0 0 0 / 0.1);
+}

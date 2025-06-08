@@ -38,6 +38,7 @@
         <label for="time" class="form-label">Horário</label>
         <input type="time" class="form-control" id="time" required />
       </div>
+
       <div class="col-md-4">
         <label for="severity" class="form-label">Situação</label>
         <select id="severity" class="form-select" required>
@@ -47,6 +48,19 @@
           <option value="Grave">Grave</option>
         </select>
       </div>
+
+      <div class="col-md-8">
+        <label for="consultorio" class="form-label">Consultório</label>
+        <select id="consultorio" class="form-select" required>
+          <option value="" disabled selected>Escolha o consultório</option>
+          <option value="Consultórios de Enfermagem">Consultórios de Enfermagem</option>
+          <option value="Consultórios Odontológicos">Consultórios Odontológicos</option>
+          <option value="Consultórios de Psicologia">Consultórios de Psicologia</option>
+          <option value="Clínica Geral">Clínica Geral</option>
+          <option value="Pediatria">Pediatria</option>
+        </select>
+      </div>
+
       <div class="col-12">
         <button type="submit" class="btn btn-primary">Agendar</button>
       </div>
@@ -55,15 +69,17 @@
     <div id="mensagem-sucesso" class="mt-4"></div>
 
     <!-- Histórico de Consultas -->
-    <hr class="my-4">
+    <hr class="my-4" />
     <h4><i class="fas fa-history"></i> Histórico de Consultas</h4>
     <div class="table-responsive">
       <table class="table table-striped align-middle">
         <thead class="table-primary">
           <tr>
+            <th>Código</th>
             <th>Paciente</th>
             <th>Data</th>
             <th>Hora</th>
+            <th>Consultório</th>
             <th>Situação</th>
           </tr>
         </thead>
@@ -79,6 +95,16 @@
 
   <!-- Script -->
   <script>
+    // Função para gerar código alfanumérico curto único (ex: AB12CD)
+    function gerarCodigo() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let codigo = '';
+      for(let i = 0; i < 6; i++) {
+        codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return codigo;
+    }
+
     document.getElementById('consulta-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -86,24 +112,30 @@
       const date = document.getElementById('date').value;
       const time = document.getElementById('time').value;
       const severity = document.getElementById('severity').value;
+      const consultorio = document.getElementById('consultorio').value;
 
       const datetime = new Date(`${date}T${time}`);
       const existing = JSON.parse(localStorage.getItem('consultas') || '[]');
 
+      // Checar conflito de horário no mesmo consultório
       const conflito = existing.some(ev => {
         const evDate = new Date(ev.start);
-        return evDate.toISOString() === datetime.toISOString();
+        return evDate.toISOString() === datetime.toISOString() && ev.consultorio === consultorio;
       });
 
       if (conflito) {
-        alert("Já existe uma consulta marcada nesse horário!");
+        alert("Já existe uma consulta marcada nesse horário nesse consultório!");
         return;
       }
 
+      const codigo = gerarCodigo();
+
       const novaConsulta = {
+        codigo: codigo,
         title: patient,
         start: datetime.toISOString(),
-        severity: severity
+        severity: severity,
+        consultorio: consultorio
       };
 
       existing.push(novaConsulta);
@@ -119,9 +151,11 @@
       mensagem.className = `alert alert-success`;
       mensagem.innerHTML = `
         <strong>Consulta marcada com sucesso!</strong><br>
+        Código: <span class="fw-bold">${codigo}</span><br>
         Paciente: ${patient}<br>
         Data: ${new Date(datetime).toLocaleDateString('pt-BR')}<br>
         Hora: ${new Date(datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}<br>
+        Consultório: <span class="fw-bold">${consultorio}</span><br>
         Situação: <span class="${cor[severity]} fw-bold">${severity}</span>
       `;
 
@@ -130,7 +164,7 @@
 
       document.getElementById('consulta-form').reset();
 
-      atualizarHistorico(); // Atualiza a tabela de histórico
+      atualizarHistorico();
     });
 
     function atualizarHistorico() {
@@ -145,10 +179,16 @@
 
         const linha = document.createElement('tr');
         linha.innerHTML = `
+          <td><code>${evento.codigo}</code></td>
           <td>${evento.title}</td>
           <td>${dataFormatada}</td>
           <td>${horaFormatada}</td>
-          <td>${evento.severity}</td>
+          <td>${evento.consultorio}</td>
+          <td><span class="${{
+            'Leve': 'text-success',
+            'Moderado': 'text-warning',
+            'Grave': 'text-danger'
+          }[evento.severity]} fw-bold">${evento.severity}</span></td>
         `;
         tbody.appendChild(linha);
       });
