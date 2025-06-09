@@ -63,7 +63,7 @@ body {
 
 @keyframes pulse {
   0%, 100% {
-    text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   }
   50% {
     text-shadow: 0 0 22px rgba(255, 107, 107, 0.6);
@@ -78,14 +78,14 @@ body {
   margin-bottom: 6px;
 }
 
-.brand-subtitle {
+.brand-subtitle { 
   font-size: 0.95rem;
   color: #bd93f9;
   margin-bottom: 24px;
 }
 
 .form-control {
-  background-color: #343548;
+  background-color: #ffffff;
   color: #f8f8f2;
   border: 1px solid #44475a;
   border-radius: 12px;
@@ -96,14 +96,14 @@ body {
 }
 
 .form-control:focus {
-  border-color: #ff6b6b;
+  border-color: #ff0000;
   box-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
   outline: none;
   background-color: #3f4054;
 }
 
 .btn-login {
-  background: linear-gradient(to right, #efe4ff, #ff3535);
+  background: linear-gradient(to right, #ff002b, #ff0000);
   border: none;
   color: #f8f8f2;
   font-weight: 600;
@@ -113,7 +113,7 @@ body {
   width: 100%;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.35);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.35);
 }
 
 .btn-login:hover {
