@@ -56,7 +56,7 @@ body {
 
 .login-icon {
   font-size: 2.5rem;
-  color: #ff6b6b;
+  color: #ff0000;
   margin-bottom: 20px;
   animation: pulse 2.5s infinite ease-in-out;
 }
@@ -103,7 +103,7 @@ body {
 }
 
 .btn-login {
-  background: linear-gradient(to right, #bd93f9, #ff6b6b);
+  background: linear-gradient(to right, #efe4ff, #ff3535);
   border: none;
   color: #f8f8f2;
   font-weight: 600;
