@@ -1,5 +1,5 @@
 // login.js
-
+/*
 function criarConfete(cor) {
   const confete = document.createElement('div');
   confete.classList.add('confetti');
@@ -54,3 +54,50 @@ function realizarLogin(email, senha) {
     alert('Email ou senha inválidos!');
   }
 }
+*/
+// login.js
+
+// 1) Importações do Firebase
+import { initializeApp }           from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } 
+                                   from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+// 2) Sua configuração (já no seu código)
+const firebaseConfig = {
+  apiKey: "AIzaSyAFbaNGKa_7l1mIYVLjNLVYfyupeUtvDC0",
+  authDomain: "wisdom-ark.firebaseapp.com",
+  projectId: "wisdom-ark",
+  storageBucket: "wisdom-ark.appspot.com",
+  messagingSenderId: "140848006140",
+  appId: "1:140848006140:web:f99774efc68d5729132879",
+  measurementId: "G-C992R6X006"
+};
+
+// 3) Inicializa Firebase e Auth
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// 4) Botão “Entrar com Google”
+document.getElementById('google-signin')
+  .addEventListener('click', () => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        const user = result.user;
+        // Exemplo: salva no localStorage
+        localStorage.setItem('usuarioLogado', JSON.stringify({
+          tipo:    'paciente',           // ajuste conforme seu fluxo
+          uid:     user.uid,
+          nome:    user.displayName,
+          email:   user.email,
+          foto:    user.photoURL
+        }));
+        // redireciona
+        window.location.href = 'agendadeconsultas.html';
+      })
+      .catch(err => {
+        console.error("Erro no login Google:", err);
+        alert("Não foi possível autenticar com Google.");
+      });
+  });
+
