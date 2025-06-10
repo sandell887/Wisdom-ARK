@@ -1,0 +1,65 @@
+/* Global theme for Wisdom ARK */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lexend:wght@400;600&display=swap');
+
+:root {
+  --primary-color: #2BC1D9;
+  --secondary-color: #2c3e50;
+  --background-color: #f4f8fb;
+  --font-family: 'Inter', 'Lexend', sans-serif;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-family);
+}
+
+.navbar {
+  background-color: var(--secondary-color);
+}
+
+.navbar-brand, .nav-link, .nav-link:hover {
+  color: white;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card i {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.card h5 {
+  font-weight: 600;
+}
+
+.main-content {
+  flex: 1;
+}
+
+footer {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .card {
+    padding: 2rem 1rem;
+  }
+}
