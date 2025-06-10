@@ -11,6 +11,36 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <!-- CSS personalizado -->
   <link rel="stylesheet" href="styleagenda.css" />
+  <style>
+    /* Confetes */
+    .confetti {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confetti-fall 3s linear forwards;
+    }
+    @keyframes confetti-fall {
+      0%   { transform: translateY(0) rotate(0deg); opacity:1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity:0; }
+    }
+    /* Checkmark */
+    #checkmark {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0);
+      font-size: 4rem;
+      color: #2DC08A;
+      z-index: 10000;
+      transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+      opacity: 0;
+    }
+    #checkmark.show {
+      transform: translate(-50%,-50%) scale(1);
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
   <!-- Sidebar -->
@@ -88,14 +118,13 @@
     </div>
   </main>
 
-  <!--
-  <footer>
-    &copy; 2025 Wisdom ARK - Todos os direitos reservados
-  </footer>
- Rodapé -->
-  <!-- Script -->
+  <!-- Confetes e Check -->
+  <div id="confetti-container"></div>
+  <div id="checkmark"><i class="fas fa-check-circle"></i></div>
+
+  <!-- Scripts -->
   <script>
-    // Função para gerar código alfanumérico curto único (ex: AB12CD)
+    // Gera código
     function gerarCodigo() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let codigo = '';
@@ -105,90 +134,87 @@
       return codigo;
     }
 
-    document.getElementById('consulta-form').addEventListener('submit', function (e) {
+    // Confetes
+    function criarConfete(cor) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.backgroundColor = cor;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }
+    function animarConfetes() {
+      const cores = ['#FF7345','#ABA0F1','#FEFFC4'];
+      for(let i=0;i<60;i++){
+        setTimeout(()=> criarConfete(cores[Math.floor(Math.random()*cores.length)]), i*50);
+      }
+    }
+
+    // Checkmark
+    function mostrarCheck() {
+      const chk = document.getElementById('checkmark');
+      chk.classList.add('show');
+      setTimeout(()=> chk.classList.remove('show'), 2000);
+    }
+
+    // Submissão do formulário
+    document.getElementById('consulta-form').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const patient = document.getElementById('patient').value;
-      const date = document.getElementById('date').value;
-      const time = document.getElementById('time').value;
-      const severity = document.getElementById('severity').value;
+      // Dados
+      const patient     = document.getElementById('patient').value.trim();
+      const date        = document.getElementById('date').value;
+      const time        = document.getElementById('time').value;
+      const severity    = document.getElementById('severity').value;
       const consultorio = document.getElementById('consultorio').value;
+      const datetime    = new Date(`${date}T${time}`);
+      const codigo      = gerarCodigo();
 
-      const datetime = new Date(`${date}T${time}`);
+      // Armazena
       const existing = JSON.parse(localStorage.getItem('consultas') || '[]');
-
-      // Checar conflito de horário no mesmo consultório
-      const conflito = existing.some(ev => {
-        const evDate = new Date(ev.start);
-        return evDate.toISOString() === datetime.toISOString() && ev.consultorio === consultorio;
-      });
-
-      if (conflito) {
-        alert("Já existe uma consulta marcada nesse horário nesse consultório!");
-        return;
-      }
-
-      const codigo = gerarCodigo();
-
-      const novaConsulta = {
-        codigo: codigo,
-        title: patient,
-        start: datetime.toISOString(),
-        severity: severity,
-        consultorio: consultorio
-      };
-
-      existing.push(novaConsulta);
+      existing.push({ codigo, patient, start: datetime.toISOString(), severity, consultorio });
       localStorage.setItem('consultas', JSON.stringify(existing));
 
-      const cor = {
-        'Leve': 'text-success',
-        'Moderado': 'text-warning',
-        'Grave': 'text-danger'
-      };
+      // Animações
+      animarConfetes();
+      mostrarCheck();
 
-      const mensagem = document.createElement('div');
-      mensagem.className = `alert alert-success`;
-      mensagem.innerHTML = `
-        <strong>Consulta marcada com sucesso!</strong><br>
-        Código: <span class="fw-bold">${codigo}</span><br>
-        Paciente: ${patient}<br>
-        Data: ${new Date(datetime).toLocaleDateString('pt-BR')}<br>
-        Hora: ${new Date(datetime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}<br>
-        Consultório: <span class="fw-bold">${consultorio}</span><br>
-        Situação: <span class="${cor[severity]} fw-bold">${severity}</span>
+      // Mensagem
+      const cor = { 'Leve':'text-success','Moderado':'text-warning','Grave':'text-danger' };
+      const msg = document.createElement('div');
+      msg.className = 'alert alert-success';
+      msg.innerHTML = `
+        <strong>✔ Consulta Agendada!</strong><br>
+        Código: <code>${codigo}</code><br>
+        ${patient} — ${date} ${time}<br>
+        ${consultorio} — <span class="${cor[severity]}">${severity}</span>
       `;
+      const msgBox = document.getElementById('mensagem-sucesso');
+      msgBox.innerHTML = '';
+      msgBox.appendChild(msg);
 
-      document.getElementById('mensagem-sucesso').innerHTML = '';
-      document.getElementById('mensagem-sucesso').appendChild(mensagem);
-
+      // Atualiza histórico e limpa form
       document.getElementById('consulta-form').reset();
-
       atualizarHistorico();
     });
 
+    // Histórico
     function atualizarHistorico() {
       const tbody = document.getElementById('historico-consultas');
       tbody.innerHTML = '';
-
       const dados = JSON.parse(localStorage.getItem('consultas') || '[]');
-      dados.forEach(evento => {
-        const dataObj = new Date(evento.start);
-        const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-        const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
+      dados.forEach(ev => {
+        const dt = new Date(ev.start);
+        const data = dt.toLocaleDateString('pt-BR');
+        const hora = dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
         const linha = document.createElement('tr');
         linha.innerHTML = `
-          <td><code>${evento.codigo}</code></td>
-          <td>${evento.title}</td>
-          <td>${dataFormatada}</td>
-          <td>${horaFormatada}</td>
-          <td>${evento.consultorio}</td>
-          <td><span class="${{
-            'Leve': 'text-success',
-            'Moderado': 'text-warning',
-            'Grave': 'text-danger'
-          }[evento.severity]} fw-bold">${evento.severity}</span></td>
+          <td><code>${ev.codigo}</code></td>
+          <td>${ev.patient}</td>
+          <td>${data}</td>
+          <td>${hora}</td>
+          <td>${ev.consultorio}</td>
+          <td><span class="${{'Leve':'text-success','Moderado':'text-warning','Grave':'text-danger'}[ev.severity]} fw-bold">${ev.severity}</span></td>
         `;
         tbody.appendChild(linha);
       });
