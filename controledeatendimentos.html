@@ -1,7 +1,5 @@
-<!-- controledeatendimentos.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,66 +37,89 @@
       <tbody id="tabela-atendimentos"></tbody>
     </table>
   </main>
-<!--
-  <footer>&copy; 2025 Wisdom ARK - Todos os direitos reservados</footer>
--->
-  <script>
-    function carregarTabela() {
+
+  <!-- Firebase + Auth + Firestore + Proteção de rota -->
+  <script type="module">
+    import { initializeApp }               from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth }                     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc } 
+                                          from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Configuração Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFbaNGKa_7l1mIYVLjNLVYfyupeUtvDC0",
+      authDomain: "wisdom-ark.firebaseapp.com",
+      projectId: "wisdom-ark",
+      storageBucket: "wisdom-ark.appspot.com",
+      messagingSenderId: "140848006140",
+      appId: "1:140848006140:web:f99774efc68d5729132879",
+      measurementId: "G-C992R6X006"
+    };
+
+    // Inicializa App, Auth e Firestore
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const col  = collection(db, "consultas");
+
+    // Protege a rota: se não estiver logado, redireciona ao login
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        carregarTabela();
+      }
+    });
+
+    // Funções de controle
+    async function carregarTabela() {
       const tbody = document.getElementById('tabela-atendimentos');
       tbody.innerHTML = '';
-      const dados = JSON.parse(localStorage.getItem('consultas') || '[]');
+      const snapshot = await getDocs(col);
 
-      dados.forEach((evento, index) => {
-        const dataObj = new Date(evento.start);
-        const dataFormatada = dataObj.toLocaleDateString('pt-BR');
-        const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
+      snapshot.forEach(docSnap => {
+        const ev = docSnap.data();
+        const dataObj = new Date(ev.start);
+        const dataFmt = dataObj.toLocaleDateString('pt-BR');
+        const horaFmt = dataObj.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
         let corClasse = '';
-        const situacao = evento.severity || evento.situacao || '-';
+        if (ev.severity==='Leve')      corClasse='text-success fw-bold';
+        else if (ev.severity==='Moderado') corClasse='text-warning fw-bold';
+        else if (ev.severity==='Grave')    corClasse='text-danger fw-bold';
+        else if (ev.severity==='Atendido com Sucesso') corClasse='text-primary fw-bold';
 
-        if (situacao === 'Leve') corClasse = 'text-success fw-bold';
-        else if (situacao === 'Moderado') corClasse = 'text-warning fw-bold';
-        else if (situacao === 'Grave') corClasse = 'text-danger fw-bold';
-        else if (situacao === 'Atendido com Sucesso') corClasse = 'text-primary fw-bold';
-
-        const consultorio = evento.consultorio || '-';
-
-        const linha = document.createElement('tr');
-        linha.innerHTML = `
-          <td>${evento.patient || evento.title}</td>
-          <td>${dataFormatada}</td>
-          <td>${horaFormatada}</td>
-          <td class="${corClasse}">${situacao}</td>
-          <td>${consultorio}</td>
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${ev.patient}</td>
+          <td>${dataFmt}</td>
+          <td>${horaFmt}</td>
+          <td class="${corClasse}">${ev.severity}</td>
+          <td>${ev.consultorio}</td>
           <td>
-            <button class="btn btn-sm btn-success me-2" title="Atendido com Sucesso" onclick="marcarComoAtendido(${index})">
+            <button class="btn btn-sm btn-success me-2" title="Atendido com Sucesso"
+              onclick="marcarComoAtendido('${docSnap.id}')">
               <i class="fas fa-check"></i>
             </button>
-            <button class="btn btn-sm btn-danger" title="Excluir" onclick="removerConsulta(${index})">
+            <button class="btn btn-sm btn-danger" title="Excluir"
+              onclick="removerConsulta('${docSnap.id}')">
               <i class="fas fa-trash-alt"></i>
             </button>
           </td>
         `;
-        tbody.appendChild(linha);
+        tbody.appendChild(tr);
       });
     }
 
-    function removerConsulta(index) {
-      let eventos = JSON.parse(localStorage.getItem('consultas') || '[]');
-      eventos.splice(index, 1);
-      localStorage.setItem('consultas', JSON.stringify(eventos));
+    async function marcarComoAtendido(id) {
+      const docRef = doc(db, "consultas", id);
+      await updateDoc(docRef, { severity: "Atendido com Sucesso" });
       carregarTabela();
     }
 
-    function marcarComoAtendido(index) {
-      let eventos = JSON.parse(localStorage.getItem('consultas') || '[]');
-      eventos[index].severity = 'Atendido com Sucesso';
-      localStorage.setItem('consultas', JSON.stringify(eventos));
-      carregarTabela();
+    function removerConsulta(id) {
+      const docRef = doc(db, "consultas", id);
+      docRef.delete().then(() => carregarTabela());
     }
-
-    window.addEventListener('DOMContentLoaded', carregarTabela);
   </script>
 </body>
-
 </html>
