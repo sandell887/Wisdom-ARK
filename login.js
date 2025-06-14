@@ -1,43 +1,43 @@
 // login.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAnalytics }  from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
 import {
   getAuth,
   signInWithPopup,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  onAuthStateChanged,
+  signOut
+}                        from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
-// 1) Configuração correta do Firebase
+// 1) Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyAFbaNGKa_7l1mIYVLjNLVYfyupeUtvDC0",
-  authDomain: "wisdom-ark.firebaseapp.com",
-  projectId: "wisdom-ark",
-  storageBucket: "wisdom-ark.appspot.com",    // <- CORRETO .appspot.com
+  apiKey:            "AIzaSyAFbaNGKa_7l1mIYVLjNLVYfyupeUtvDC0",
+  authDomain:        "wisdom-ark.firebaseapp.com",
+  projectId:         "wisdom-ark",
+  storageBucket:     "wisdom-ark.appspot.com",
   messagingSenderId: "140848006140",
-  appId: "1:140848006140:web:f99774efc68d5729132879",
-  measurementId: "G-C992R6X006"
+  appId:             "1:140848006140:web:f99774efc68d5729132879",
+  measurementId:     "G-C992R6X006"
 };
 
-// 2) Inicializa Firebase e Auth (APENAS via CDN)
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+const app       = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth      = getAuth(app);
+const provider  = new GoogleAuthProvider();
 
-// 3) Redireciona conforme o tipo
+// 2) Redirecionamento por tipo
 function redirectByRole(tipo) {
-  if (tipo === 'paciente') {
-    window.location.href = 'agendadeconsultas.html';
-  } else if (tipo === 'medico') {
+  if (tipo === 'medico') {
     window.location.href = 'controledeatendimentos.html';
   } else if (tipo === 'gestor') {
     window.location.href = 'estoquedemedicamentos.html';
   } else {
-    auth.signOut().then(() => window.location.href = 'login.html');
+    window.location.href = 'agendadeconsultas.html';
   }
 }
 
-// 4) Se já estiver logado e estiver em login.html, envia direto
+// 3) Se já estiver logado e estiver em login.html, redireciona
 onAuthStateChanged(auth, user => {
   if (user && location.pathname.endsWith('login.html')) {
     const stored = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
@@ -45,42 +45,44 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// 5) Login com E-mail/Senha
-document.getElementById('email-login').addEventListener('click', () => {
+// 4) Login com e-mail/senha
+document.getElementById('email-login').addEventListener('click', async () => {
   const email = document.getElementById('email').value.trim();
   const senha = document.getElementById('senha').value;
-  signInWithEmailAndPassword(auth, email, senha)
-    .then(({ user }) => {
-      const tipo = email.includes('medico')  ? 'medico'
-                 : email.includes('gestor')  ? 'gestor'
-                 : 'paciente';
-      localStorage.setItem('usuarioLogado',
-        JSON.stringify({ tipo, uid: user.uid, email })
-      );
-      redirectByRole(tipo);
-    })
-    .catch(err => alert('Credenciais inválidas: ' + err.message));
+  try {
+    const { user } = await signInWithEmailAndPassword(auth, email, senha);
+    // Inferir tipo ou buscar de um coleçãno Firestore
+    const tipo = email.toLowerCase().includes('medico') ? 'medico'
+               : email.toLowerCase().includes('gestor') ? 'gestor'
+               : 'paciente';
+    localStorage.setItem('usuarioLogado', JSON.stringify({
+      tipo,
+      uid:    user.uid,
+      email:  user.email
+    }));
+    redirectByRole(tipo);
+  } catch (err) {
+    alert('Credenciais inválidas: ' + err.message);
+  }
 });
 
-// 6) Login com Google
-document.getElementById('google-signin').addEventListener('click', () => {
-  signInWithPopup(auth, provider)
-    .then(({ user }) => {
-      // Todo login Google vira paciente (ou busque o tipo no seu Firestore)
-      const tipo = 'paciente';
-      localStorage.setItem('usuarioLogado',
-        JSON.stringify({
-          tipo,
-          uid:   user.uid,
-          nome:  user.displayName,
-          email: user.email,
-          foto:  user.photoURL
-        })
-      );
-      redirectByRole(tipo);
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Não foi possível autenticar com Google: ' + err.message);
-    });
+// 5) Login com Google
+document.getElementById('google-signin').addEventListener('click', async () => {
+  try {
+    const { user } = await signInWithPopup(auth, provider);
+    // Aqui definimos médicos manualmente, ex:
+    const emailNorm = user.email.trim().toLowerCase();
+    const tipo = (emailNorm === 'wisdombigrobot@gmail.com' || emailNorm === 'medico@teste.com')
+               ? 'medico'
+               : 'paciente';
+    localStorage.setItem('usuarioLogado', JSON.stringify({
+      tipo,
+      uid:    user.uid,
+      email:  user.email
+    }));
+    redirectByRole(tipo);
+  } catch (err) {
+    console.error(err);
+    alert('Não foi possível autenticar com Google: ' + err.message);
+  }
 });

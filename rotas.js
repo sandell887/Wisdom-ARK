@@ -1,12 +1,12 @@
 // rotas.js
 (function roteador() {
-  // Qual página estamos
+  // 1) Página atual
   const pagina = window.location.pathname.split("/").pop() || "login.html";
 
-  // Páginas públicas (login, index e agendamento)
-  const publicas = ["login.html", "index.html", "agendadeconsultas.html"];
+  // 2) Páginas públicas (não exigem login)
+  const publicas = ["login.html", "index.html"];
 
-  // Tenta ler usuário logado
+  // 3) Recupera usuário do localStorage
   let usuario = null;
   try {
     usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
@@ -14,13 +14,13 @@
     localStorage.removeItem("usuarioLogado");
   }
 
-  // Se não autenticado em página privada, redireciona ao login
+  // 4) Se for página privada e não tiver usuário, manda para login
   if (!usuario && !publicas.includes(pagina)) {
     window.location.href = "login.html";
     return;
   }
 
-  // Se usuário EXISTE e está no login.html, manda conforme papel
+  // 5) Se já estiver logado e tentar abrir login.html, redireciona por tipo
   if (usuario && pagina === "login.html") {
     const rotas = {
       paciente: "agendadeconsultas.html",
