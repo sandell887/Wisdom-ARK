@@ -1,6 +1,6 @@
 // login.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getAnalytics }  from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
+import { initializeApp }                           from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAnalytics }                            from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
 import {
   getAuth,
   signInWithPopup,
@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
-}                        from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+}                                                   from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 // 1) Configuração do Firebase
 const firebaseConfig = {
@@ -20,7 +20,6 @@ const firebaseConfig = {
   appId:             "1:140848006140:web:f99774efc68d5729132879",
   measurementId:     "G-C992R6X006"
 };
-
 const app       = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth      = getAuth(app);
@@ -33,11 +32,12 @@ function redirectByRole(tipo) {
   } else if (tipo === 'gestor') {
     window.location.href = 'estoquedemedicamentos.html';
   } else {
-    window.location.href = 'agendadeconsultas.html';
+    // pacientes agora vão primeiro escolher a UBS
+    window.location.href = 'ubs.html';
   }
 }
 
-// 3) Se já estiver logado **e** houver algo no localStorage, redireciona
+// 3) Se já estiver logado **e** na página de login, redireciona
 onAuthStateChanged(auth, user => {
   const stored = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
   if (user && stored && stored.tipo && location.pathname.endsWith('login.html')) {
@@ -51,9 +51,8 @@ document.getElementById('email-login').addEventListener('click', async () => {
   const senha = document.getElementById('senha').value;
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, senha);
-    // Inferir tipo ou buscar de um coleção no Firestore
-    const tipo = email.toLowerCase().includes('medico') ? 'medico'
-               : email.toLowerCase().includes('gestor') ? 'gestor'
+    const tipo = email.toLowerCase().includes('medico')  ? 'medico'
+               : email.toLowerCase().includes('gestor')  ? 'gestor'
                : 'paciente';
     localStorage.setItem('usuarioLogado', JSON.stringify({
       tipo,
@@ -70,7 +69,6 @@ document.getElementById('email-login').addEventListener('click', async () => {
 document.getElementById('google-signin').addEventListener('click', async () => {
   try {
     const { user } = await signInWithPopup(auth, provider);
-    // Aqui definimos médicos manualmente
     const emailNorm = user.email.trim().toLowerCase();
     const tipo = (emailNorm === 'wisdombigrobot@gmail.com' || emailNorm === 'medico@teste.com')
                ? 'medico'
@@ -87,10 +85,9 @@ document.getElementById('google-signin').addEventListener('click', async () => {
   }
 });
 
-// 6) Função de logout (pode ser chamada de qualquer tela)
+// 6) Função de logout (exportada para uso em outras telas)
 export async function doLogout() {
   await signOut(auth);
   localStorage.removeItem('usuarioLogado');
   window.location.href = 'login.html';
 }
-  

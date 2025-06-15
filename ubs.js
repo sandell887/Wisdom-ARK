@@ -1,10 +1,10 @@
 // 1) Configurações das UBS (coordenadas de exemplo)
 const ubsCoords = {
-  "UBS Centro": [-23.550521, -46.633308],
-  "UBS Norte":  [-23.530000, -46.630000],
-  "UBS Sul":    [-23.570000, -46.640000],
-  "UBS Leste":  [-23.550000, -46.610000],
-  "UBS Oeste":  [-23.550000, -46.660000],
+  "UBS Sede": [-2.5471611,-44.0990541],
+  "UBS Vilas":  [-2.5463453,-44.1051945],
+  "UBS Limítrofes":    [-2.511107,-44.183616],
+  "UBS Parques":  [-2.5197547,-44.2095218],
+  "UBS Zona Rural":  [-2.5598032,-44.1760007],
 };
 
 // 2) Inicializa o mapa Leaflet
@@ -12,13 +12,13 @@ const map = L.map('map', {
   scrollWheelZoom: false,
   dragging:         false,
   zoomControl:      false
-}).setView(ubsCoords["UBS Centro"], 13);
+}).setView(ubsCoords["UBS Sede"], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-const marker = L.marker(ubsCoords["UBS Centro"]).addTo(map);
+const marker = L.marker(ubsCoords["UBS Sede"]).addTo(map);
 
 // 3) Lógica do carrossel de UBS
 const carousel = document.getElementById('carousel');
