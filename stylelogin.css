@@ -1,22 +1,42 @@
+/* =========================
+   Reset & Safe-Area Padding
+   ========================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding: 0;
+  /* safe-area inset para iOS notch */
+  padding: env(safe-area-inset-top) 0 0 env(safe-area-inset-left);
   font-family: 'Lexend', sans-serif;
-  background: #E2DFFC;
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  /* Apple-style gradient */
+  background: radial-gradient(circle at top left, #f0f4ff, #d9e4ff, #ffffff);
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100dvh;
+  height: 100vh;
   overflow: hidden;
+}
+
+/* fallback para navegadores sem env() */
+@supports not (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: 20px;
+  }
 }
 
 @keyframes gradientBG {
   0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  50%      { background-position: 100% 50%; }
 }
 
+/* =========================
+   Login Wrapper & Panel
+   ========================= */
 .login-wrapper {
   width: 90%;
   max-width: 900px;
@@ -31,7 +51,7 @@ body {
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .login-panel {
@@ -42,7 +62,8 @@ body {
   flex-wrap: wrap;
 }
 
-.left-panel, .right-panel {
+.left-panel,
+.right-panel {
   flex: 1;
   padding: 60px 40px;
   display: flex;
@@ -51,8 +72,9 @@ body {
   text-align: center;
 }
 
+/* Left Side */
 .left-panel {
-  background: linear-gradient(135deg, #ffffff, #ffffff);
+  background: #ffffff;
   color: #2c2c2c;
 }
 
@@ -83,6 +105,7 @@ body {
   transform: translateY(-2px);
 }
 
+/* Right Side */
 .right-panel {
   background: linear-gradient(135deg, #a19cc1 0%, #ADA2F1 100%);
   color: #fff;
@@ -93,16 +116,14 @@ body {
   margin-bottom: 24px;
 }
 
-.input-group {
-  position: relative;
-  margin-bottom: 20px;
-}
-
+/* =========================
+   Inputs & Buttons
+   ========================= */
 .input-group {
   position: relative;
   margin-bottom: 20px;
   border-radius: 12px;
-  overflow: hidden; /* Garante que a borda arredondada apareça */
+  overflow: hidden;
 }
 
 .input-group i {
@@ -125,9 +146,7 @@ body {
   color: #333;
   z-index: 1;
   position: relative;
-  box-sizing: border-box;
 }
-
 
 .options {
   display: flex;
@@ -155,6 +174,7 @@ body {
   background: #1b1c4a;
 }
 
+/* Social Icons */
 .social-login {
   margin-top: 30px;
   font-size: 1.3rem;
@@ -173,6 +193,9 @@ body {
   transform: scale(1.2);
 }
 
+/* =========================
+   Confetti Animation
+   ========================= */
 .confetti {
   position: absolute;
   width: 10px;
@@ -185,19 +208,14 @@ body {
   z-index: 9999;
 }
 
-
 @keyframes fall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
-  }
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 
-/* Responsivo para celular */
+/* =========================
+   Mobile Responsiveness
+   ========================= */
 @media (max-width: 768px) {
   .login-panel {
     flex-direction: column-reverse;
