@@ -20,6 +20,13 @@
 </head>
 <body>
 
+  <!-- Botão de logout -->
+  <div class="container-fluid py-2 bg-light d-flex justify-content-end">
+    <button id="logout-btn" class="btn btn-outline-secondary">
+      <i class="fas fa-sign-out-alt"></i> Sair
+    </button>
+  </div>
+
   <main class="main-content full-width">
     <h2><i class="fas fa-calendar-check"></i> Agendar Consulta</h2>
 
@@ -95,19 +102,34 @@
   <!-- Script de agendamento -->
   <script type="module" src="./agenda.js"></script>
   <script>
-    // Bootstrap form validation
+    // Logout local (com Firebase Auth se usado)
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      // Se você também usa Firebase Auth, descomente abaixo:
+      // import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+      // const auth = getAuth();
+      // signOut(auth);
+
+      // Limpa flag de sessão e UBS escolhida
+      localStorage.removeItem('usuarioLogado');
+      localStorage.removeItem('ubsEscolhida');
+
+      // Redireciona ao login e mantém lá
+      window.location.href = 'login.html';
+    });
+
+    // Validação de formulário Bootstrap
     (function () {
-      'use strict'
+      'use strict';
       document.querySelectorAll('.needs-validation').forEach(form => {
         form.addEventListener('submit', event => {
           if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
+            event.preventDefault();
+            event.stopPropagation();
           }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    })()
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
   </script>
 </body>
 </html>

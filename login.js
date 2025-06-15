@@ -37,10 +37,10 @@ function redirectByRole(tipo) {
   }
 }
 
-// 3) Se já estiver logado e estiver em login.html, redireciona
+// 3) Se já estiver logado **e** houver algo no localStorage, redireciona
 onAuthStateChanged(auth, user => {
-  if (user && location.pathname.endsWith('login.html')) {
-    const stored = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+  const stored = JSON.parse(localStorage.getItem('usuarioLogado') || 'null');
+  if (user && stored && stored.tipo && location.pathname.endsWith('login.html')) {
     redirectByRole(stored.tipo);
   }
 });
@@ -51,14 +51,14 @@ document.getElementById('email-login').addEventListener('click', async () => {
   const senha = document.getElementById('senha').value;
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, senha);
-    // Inferir tipo ou buscar de um coleçãno Firestore
+    // Inferir tipo ou buscar de um coleção no Firestore
     const tipo = email.toLowerCase().includes('medico') ? 'medico'
                : email.toLowerCase().includes('gestor') ? 'gestor'
                : 'paciente';
     localStorage.setItem('usuarioLogado', JSON.stringify({
       tipo,
-      uid:    user.uid,
-      email:  user.email
+      uid:   user.uid,
+      email: user.email
     }));
     redirectByRole(tipo);
   } catch (err) {
@@ -70,15 +70,15 @@ document.getElementById('email-login').addEventListener('click', async () => {
 document.getElementById('google-signin').addEventListener('click', async () => {
   try {
     const { user } = await signInWithPopup(auth, provider);
-    // Aqui definimos médicos manualmente, ex:
+    // Aqui definimos médicos manualmente
     const emailNorm = user.email.trim().toLowerCase();
     const tipo = (emailNorm === 'wisdombigrobot@gmail.com' || emailNorm === 'medico@teste.com')
                ? 'medico'
                : 'paciente';
     localStorage.setItem('usuarioLogado', JSON.stringify({
       tipo,
-      uid:    user.uid,
-      email:  user.email
+      uid:   user.uid,
+      email: user.email
     }));
     redirectByRole(tipo);
   } catch (err) {
@@ -86,3 +86,11 @@ document.getElementById('google-signin').addEventListener('click', async () => {
     alert('Não foi possível autenticar com Google: ' + err.message);
   }
 });
+
+// 6) Função de logout (pode ser chamada de qualquer tela)
+export async function doLogout() {
+  await signOut(auth);
+  localStorage.removeItem('usuarioLogado');
+  window.location.href = 'login.html';
+}
+  
